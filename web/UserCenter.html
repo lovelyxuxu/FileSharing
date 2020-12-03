@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <script src="../js/jquery-3.4.1.js"></script>
+    <script src="../js/bootstrap.js"></script>
+    <script>
+      function getCookie(cookieName) {
+            var strCookie = document.cookie;
+            var arrCookie = strCookie.split("; ");
+            for (var i = 0; i < arrCookie.length; i++) {
+                var arr = arrCookie[i].split("=");
+                if (cookieName == arr[0]) {
+                    return arr[1];
+                }
+            }
+            return "";
+        }
+      function getFollowList(){
+        $.ajax({
+                url: "https://localhost:44387/api/Home/LookUp",
+                type: "get",
+                data: {
+                    userid: getCookie("touristid")
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true
+            }).done(function (data) {
+              showFileList(data,3)
+            }).fail(function () {
+
+            })
+      }
+      function getFansList(){
+        $.ajax({
+                url: "https://localhost:44387/api/Home/LookFans",
+                type: "get",
+                data: {
+                    userid: getCookie("touristid")
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true
+            }).done(function (data) {
+              showFileList(data,2)
+            }).fail(function () {
+
+            })
+        }
+
+      function getTweetList(){
+        $.ajax({
+                url: "https://localhost:44387/api/Home/FileLook",
+                type: "get",
+                data: {
+                    userid: getCookie("touristid")
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true
+            }).done(function (data) {
+              showFileList(data,1)
+            }).fail(function () {
+            })
+      }
+      function showFileList(data,formate) {
+            var list = JSON.parse(data);
+            if(formate==1){
+              var thead = $("#tweet_table>thead").append("<tr><th>序号</th><th>名字</th><th>类型</th><th>上传时间</th></tr>");
+            var tbody = $("#tweet_table>tbody");
+            $.each(list, function (index, item) {
+                filetbody.append("<tr><td>" + (parseInt(index)+1) + "</td><td>"+item.FileName+"</td><td>" + item.Type + "</td><td>" + item.UpTime + "</td></tr>")
+            })
+            }else if(formate==2){
+              var thead = $("#fans_table>thead").append("<tr><th>序号</th><th>粉丝ID</th></tr>");
+            var tbody = $("#fans_table>tbody");
+            $.each(list, function (index, item) {
+                filetbody.append("<tr><td>" + (parseInt(index)+1) + "</td><td>"+item+"</td></tr>")
+            })
+            }else if(formate==3){
+              var thead = $("#follow_table>thead").append("<tr><th>序号</th><th>关注ID</th></tr>");
+            var tbody = $("#follow_table>tbody");
+            $.each(list, function (index, item) {
+                filetbody.append("<tr><td>" + (parseInt(index)+1) + "</td><td>"+item+"</td></tr>")
+            })
+            }
+            
+        }
+
+      function showInfo(data) {
+            var info = JSON.parse(data);
+            $("#name_div").append("<span>"+info.name+"</span>");
+            $("#sex_div").append("<span>"+info.sex+"</span>");
+            $("#barthday_div").append("<span>"+info.birthday+"</span>");
+            $("#fans_div").append("<span>"+info.fans+"</span>");
+            $("#follow_div").append("<span>"+info.follow+"</span>");
+            $("#tweet_div").append("<span>"+info.tweet+"</span>");
+        }
+      function htmlInit(){
+        $.ajax({
+                url: "https://localhost:44387/api/Home/UserCenterInfo",
+                type: "get",
+                data: {
+                    userid: getCookie("touristid")
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true
+            }).done(function (data) {
+                console.log(data);
+                showInfo(data);
+
+            }).fail(function () {
+
+            })
+        }
+
+      $(function(){
+         htmlInit(); //看本用户的
+
+      })
+    </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-default" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../Index.html">Home</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="UpFile.html">上传</a></li>
+                <li><a href="DownFile.html">下载</a></li>
+                <li class="active"><a href="###">用户中心</a></li>
+            </ul>
+            <form class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="UserLogin.html">登录</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="UpFile.html">上传</a></li>
+                        <li><a href="DownFile.html">下载</a></li>
+                        <li><a href="###">用户中心</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </nav>
+
+    
+    <div class="container">
+      <div>
+        <span></span>
+        <img src="#" class="img-responsive" alt="我是头像">
+        <button type="button"  id="changeImage" class="btn btn-sm btn-default">更换头像</button>
+      </div>
+      <div>
+        <div id="name_div">名字：</div>
+        
+      </div>
+      <div>
+        <div id="sex_div">性别：</div>
+      </div>
+      <div>
+        <div id="barthday_div">生日：</div>
+      </div>
+      <div>
+        <div id="fans_div"><a>粉丝：</a></div>
+      </div>
+      <div>
+        <div id="follow_div"><a>关注：</a></div>
+      </div>
+      <div>
+        <div id="tweet_div"><a>动态：</a></div>
+      </div>
+    </div>
+  
+    
+    <div class="container">
+      <table id="fans_table">
+        <thead></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+      <table id="follow_table">
+        <thead></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+      <table id="tweet_table">
+        <thead></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
+    
+
+ 
+</body>
+
+</html>

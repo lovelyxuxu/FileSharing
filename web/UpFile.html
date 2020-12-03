@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <script src="../js/jquery-3.4.1.js"></script>
+    <script src="../js/bootstrap.js"></script>
+    <script>
+        function getCookie(cookieName) {
+            var strCookie = document.cookie;
+            var arrCookie = strCookie.split("; ");
+            for (var i = 0; i < arrCookie.length; i++) {
+                var arr = arrCookie[i].split("=");
+                if (cookieName == arr[0]) {
+                    return arr[1];
+                }
+            }
+            return "";
+        }
+
+        function fileList() {
+            $.ajax({
+                url: "https://localhost:44387/api/Home/FileLook",
+                type: "get",
+                data: {
+                    userid: getCookie("touristid")
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true
+            }).done(function (data) {
+                console.log(data);
+                showFileList(data);
+
+            }).fail(function () {
+
+            })
+
+        }
+        function deleteFile(id){
+                $.ajax({
+                    url: "https://localhost:44387/api/Home/FileDelete",
+                    type: "get",
+                    data: {fileid:id},
+                    cache: false,
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true
+                }).done(function (data) {
+                    alert('删除成功');
+                    fileList();
+                }).fail(function () {
+                    alert('删除失败！');
+                })
+        }
+
+        function howShare(id,address){
+            $("#share_div").show();
+            $("#fileid_hidden").val(id);
+            $("#fileaddress_hidden").val(address);
+        }
+        function cancelShare(){
+            $("#share_div").hide();
+        }
+        function shareFile(){
+            var id=$("#fileid_hidden").val();
+            var expirtime=$("#expirtime_input").val();
+            var desuser=$("#desuser_input").val();
+            var data={
+                id:id,
+                expirtime:expirtime,
+                desuser:desuser
+                //先传空 后边用表单传入数据
+            }
+            $.ajax({
+                url: "https://localhost:44387/api/Home/FileShare",
+                type: "post",
+                data: {shareinfojson:JSON.stringify(data)},
+                cache: false,
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true
+            }).done(function (data) {
+                console.log(data)
+            }).fail(function () {
+                console.log("no")
+            })
+        }
+        function getFileUrl(filefile,fileidid,format){
+            $.ajax({
+                url: "https://localhost:44387/api/Home/DownOrShare",
+                type: "get",
+                data:{
+                    file:filefile,
+                    fileid:fileidid
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true
+            }).done(function (data) {
+                //这里判断  是否下载还是分享
+                if(format=="down"){
+                    DownFile(data);//下载文件
+                }else if(format=="share"){
+                    showFileUrl(data);
+                    shareFile();//处理分享后的++操作
+                }
+            }).fail(function () {
+                console.log("no");
+            })
+        }
+        function showFileUrl(data){
+            $("#showfileurl").append("<span>"+data+"<span>")
+        }
+        function DownFile(filefile){
+            window.location.href=filefile;
+        }
+
+        function showFileList(data) {
+            var list = JSON.parse(data);
+            var filetbody = $("#fileListTable>tbody");
+            $.each(list, function (index, item) {
+                filetbody.append("<tr><td>" + (parseInt(index)+1) + "</td><td><a  onclick='getFileUrl(\""+item.Address+"\",\""+item.FileID+"\",\"down\");' >" + item.FileName + "</a></td><td>" + item.UpTime +
+                    "</td><td>" + item.Size + "</td><td>" + item.Type + "</td>\
+                    <td><a onclick='deleteFile(\""+item.FileID+"\");'>删除</a> | <a onclick='howShare(\""+item.FileID+"\",\""+item.Address+"\");'>分享</a></td></tr>")
+            })
+        }
+        // href="+item.Address+"
+        $(function () {
+            $("#share_div").hide();
+            $("#fileSubmit").click(function () {
+                // var form = $('#uploadForm')[0];
+                // var formData = new FormData(form);
+                var formdata=new FormData();
+                var input=$("#UpInputFile")[0];
+                for(var i=0; i<input.files.length; i++) {
+                    formdata.append("files", input.files[i]);
+                }
+                console.log(formdata)
+                $.ajax({
+                    url: "https://localhost:44387/api/Home/FileUpload",
+                    type: "post",
+                    data: formdata,
+                    cache: false,
+                    processData: false, // 使数据不做处理
+                    contentType: false, // 不要设置Content-Type请求头
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true
+                }).done(function (data) {
+                    console.log(data);
+                    if (data.status == 'ok') {
+                        alert('上传成功！');
+                    }
+
+                }).fail(function () {
+                    alert('上传失败！');
+                })
+            })
+
+            if (false) { //如果有用户就用用户，没用户用游客  暂时不写用户
+
+            } else {
+
+                $("#username_hidden").val(getCookie("touristid"));
+            }
+            fileList(); //页面启动更新
+
+        });
+    </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-default" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../Index.html">Home</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="###">上传</a></li>
+                <li><a href="DownFile.html">下载</a></li>
+                <li><a href="UserCenter.html">用户中心</a></li>
+            </ul>
+            <form class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="UserLogin.html">登录</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="###">上传</a></li>
+                        <li><a href="DownFile.html">下载</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </nav>
+
+    <div class="container">
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="UpInputFile">File input</label>
+                <input type="file" id="UpInputFile" multiple="multiple">
+            </div>
+            <button type="button" id="fileSubmit" class="btn btn-default">上传</button>
+        </form>
+        <table id="fileListTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>文件名</th>
+                    <th>上传时间</th>
+                    <th>大小</th>
+                    <th>类型</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 数据 -->
+            </tbody>
+            <tfoot>
+                <!-- 分页 -->
+            </tfoot>
+        </table>
+
+        <div  id="share_div">
+            <hr>
+            <form >
+                <div class="form-group">
+                    <label for="expirtime_input">截止时间<span style="color: red;">不填默认为永久</span></label>
+                    <input type="date" class="form-control" id="expirtime_input" >
+                </div>
+          
+                <div class="form-group">
+                    <label for="desuser_input">指定用户<span style="color: red;">不填默认为公开</span></label>
+                    <input type="text" class="form-control" id="desuser_input" placeholder="指定用户">
+                </div>
+                <button type="button" onclick="getFileUrl($('#fileaddress_hidden').val(),$('#fileid_hidden').val(),'share');" class="btn btn-default">确定</button>
+                <button type="button" onclick="cancelShare();" class="btn btn-default">取消分享</button>
+            </form>
+        </div>
+    </div>
+    
+    
+    <div class="panel panel-default">
+        <div class="panel-body" id="showfileurl">
+            <!-- <span>dafa</span> -->
+            <!-- 这里边显示链接 -->
+        </div>
+    </div>
+
+
+    <input type="hidden" id="username_hidden" class="form-control" value="">
+    <input type="hidden" id="fileid_hidden" class="form-control" value="">
+    <input type="hidden" id="fileaddress_hidden" class="form-control" value="">
+    
+</body>
+
+</html>

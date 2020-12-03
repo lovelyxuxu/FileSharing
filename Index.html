@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Sharing</title>
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <script src="js/jquery-3.4.1.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script>
+        function getCookie(cookieName) {
+            var strCookie = document.cookie;
+            var arrCookie = strCookie.split("; ");
+            for (var i = 0; i < arrCookie.length; i++) {
+                var arr = arrCookie[i].split("=");
+                if (cookieName == arr[0]) {
+                    return arr[1];
+                }
+            }
+            return "";
+        }
+        function getTourist() {
+            $.ajax({
+                url: "https://localhost:44387/api/Home/RegLogTourist",
+                type: "post",
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true
+            }).done(function (data) {
+                var touristid = getCookie("touristid");
+                if (touristid != null) {
+                     $("#showname").html("游客:" + "<span style='font-size: 16px;'>"+touristid+"</span>");
+                } else {
+                    $("#showname").text("刷新一下变成游客");
+                }
+
+            }).fail(function () {
+                //用不到 可删
+            })
+        }
+
+        $(function () {
+            getTourist();
+        });
+    </script>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-default" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand active" href="###">FileSharing</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="web/UpFile.html">上传</a></li>
+                <li><a href="web/DownFile.html">下载</a></li>
+                <li><a href="web/UserCenter.html">用户中心</a></li>
+            </ul>
+            <form class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="web/UserLogin.html">登录</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="web/UpFile.html">上传</a></li>
+                        <li><a href="web/DownFile.html">下载</a></li>
+                        <li><a href="web/UserLogin.html">登录</a></li>
+
+                    </ul>
+                </li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </nav>
+
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Hello, <span  id="showname"></span></h1>
+            <p>这是一个个人的私有仓库，可以分享链接，后期可以公开到仓库中</p>
+            <p><a class="btn btn-primary btn-lg" href="#" role="button">了解更多</a></p>
+        </div>
+
+
+        <div>
+            
+            <a href="web/LookMax.html">“世界之最”</a>
+
+            <div class="alert alert-success">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <strong>Title!</strong> Alert body ...
+            </div>
+            
+            
+            
+            <div class="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <strong>Title!</strong> Alert body ...
+            </div>
+            
+        </div>
+    </div>
+
+   
+
+
+</body>
+
+</html>

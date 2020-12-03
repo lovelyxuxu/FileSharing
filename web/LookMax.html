@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="../js/jquery-3.4.1.js"></script>
+  <script>
+    function show(data, msg) {
+      $("#show_table").empty().append("<thead>\
+                                  <tr><th>序号</th><th>" + msg + "id</th><th>数量</th></tr>\
+                                 <thead>\
+                                 <tbody id='show_tbody'></tbody>");
+      var i=0;
+      $.each(data, function (key, value) {
+        $("#show_tbody").append("<tr><td>"+(++i)+"</td><td>" + key + "</td><td>"+value+"</td></tr>")
+      })
+    }
+
+    // function getDicVal(data){
+    //   var arr = Object.keys(data)
+    //       for(let key in data){ 
+	  //         console.log('key:', key);
+    //       }
+
+    //       for(let key in data){ 
+    //         console.log('value:', data[key]);
+    //       }
+    // }
+
+
+    $(function () {
+
+      $("#getTheMostDownFileUser").click(function () {
+        $.ajax({
+          url: "https://localhost:44387/api/Home/TheMostDownFileUser",
+          type: "get",
+          xhrFields: {
+            withCredentials: true
+          },
+          crossDomain: true
+        }).done(function (data) {
+          console.log(data);
+          show(data, "user");
+        }).fail(function () {
+          console.log("no")
+        })
+      })
+
+      $("#getTheMostDownFlowFile").click(function () {
+        $.ajax({
+          url: "https://localhost:44387/api/Home/TheMostDownFlowFile",
+          type: "get",
+          xhrFields: {
+            withCredentials: true
+          },
+          crossDomain: true
+        }).done(function (data) {
+          console.log(data)
+           show(data, "file");
+        }).fail(function () {
+          console.log("no")
+        })
+      })
+
+
+    })
+  </script>
+</head>
+
+<body>
+  <div>
+    <button id="getTheMostDownFileUser">分享的文件被下载最多的用户</button>
+  </div>
+  <div>
+    <button id="getTheMostDownFlowFile">获取下载流量最大的文件</button>
+  </div>
+  <table id="show_table">
+
+  </table>
+</body>
+
+</html>

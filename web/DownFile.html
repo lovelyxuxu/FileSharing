@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <script src="../js/jquery-3.4.1.js"></script>
+    <script src="../js/bootstrap.js"></script>
+    <script>
+        function getCookie(cookieName) {
+            var strCookie = document.cookie;
+            var arrCookie = strCookie.split("; ");
+            for (var i = 0; i < arrCookie.length; i++) {
+                var arr = arrCookie[i].split("=");
+                if (cookieName == arr[0]) {
+                    return arr[1];
+                }
+            }
+            return "";
+        }
+        function DownFile(filefile){
+            window.location.href=filefile;
+        }
+        function getFileUrl(filefile,fileidid,format){
+            $.ajax({
+                url: "https://localhost:44387/api/Home/DownOrShare",
+                type: "get",
+                data:{
+                    file:filefile,
+                    fileid:fileidid
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true
+            }).done(function (data) {
+                //这里判断  是否下载还是分享
+                console.log(data)
+                if(format=="down"){
+                    DownFile(data);//下载文件
+                }else if(format=="geturl"){
+                    $("#pleaseinputfileID").val(data)
+                }
+            }).fail(function () {
+                console.log("no");
+            })
+        }
+        function showFileList(data) {
+            var list = JSON.parse(data);
+            var filetbody = $("#fileListTable>tbody");
+            $.each(list, function (index, item) {
+                filetbody.append("<tr><td>" + (parseInt(index)+1) + "</td><td>" + item.FileName + "</a></td>\
+                    <td>" + item.UpTime +"</td><td>" + item.Size + "</td><td>" + item.Type + "</td>\
+                    <td>" + item.ShareNum +"</td><td>" + item.DownloadNum + "</td><td>" + item.ExpirTime + "</td><td>" + item.UserID + "</td>\
+                    <td><a  onclick='getFileUrl(\""+item.Address+"\",\""+item.FileID+"\",\"down\");' >下载</a> | <a  onclick='getFileUrl(\""+item.Address+"\",\""+item.FileID+"\",\"geturl\");' >生成链接</a></td></tr>")
+            })
+        }
+
+        function fileList() {
+            $.ajax({
+                url: "https://localhost:44387/api/Home/PublicFileLook",
+                type: "get",
+                data: {
+                    userid: getCookie("touristid")
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true
+            }).done(function (data) {
+                console.log(data);
+                showFileList(data)
+                
+            }).fail(function () {
+
+            })
+
+        }
+        $(function(){
+            fileList();
+        })
+    </script>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-default" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../Index.html">Home</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="UpFile.html">上传</a></li>
+                <li class="active"><a href="###">下载</a></li>
+                <li><a href="UserCenter.html">用户中心</a></li>
+            </ul>
+            <form class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="UserLogin.html">登录</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="UpFile.html">上传</a></li>
+                        <li><a href="###">下载</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </nav>
+
+
+    <div class="container-fluid">
+        
+       
+       <div class="page-header">
+         <h1>共享之家<small>您可下载的文件如下</small></h1>
+       </div>
+       
+        
+        <table id="fileListTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>文件名</th>
+                    <th>上传时间</th>
+                    <th>大小</th>
+                    <th>类型</th>
+                    <th>分享量</th>
+                    <th>下载量</th>
+                    <th>过期时间</th>
+                    <th>作者</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>例子</td>
+                    <td>dva.jpg</td>
+                    <td>2020-10-10</td>
+                    <td>3.5MB</td>
+                    <td>Image</td>
+                    <td>23</td>
+                    <td>10086</td>
+                    <td>2021-01-01</td>
+                    <td>老张</td>
+                    <td><a href="###">下载</a></td>
+                </tr>
+            </tbody>
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+    </form>
+
+
+
+    
+    
+    <form>
+        <legend>下载链接下载：</legend>
+        <div class="form-group">
+            <input type="text" class="form-control" id="pleaseinputfileID" placeholder="URL ">
+        </div>
+        <button type="button" id="copyurl_btn" class="btn btn-primary">复制链接</button>
+        <button type="button" id="pleasetest" class="btn btn-primary">下载</button>
+    </form>
+  
+    
+
+    <script>
+
+
+
+        // function filedown() {
+        //     $.ajax({
+        //         type: "POST",
+        //         url: url,
+        //         data: params,
+        //         success: function (response, status, request) {
+        //             var disp = request.getResponseHeader('Content-Disposition');
+        //             if (disp && disp.search('attachment') != -1) { //判断是否为文件
+        //                 var form = $('<form method="POST" action="' + url + '">');
+        //                 $.each(params, function (k, v) {
+        //                     form.append($('<input type="hidden" name="' + k +
+        //                         '" value="' + v + '">'));
+        //                 });
+        //                 $('body').append(form);
+        //                 form.submit(); //自动提交
+        //             }
+        //         }
+        //     });
+        // }
+    </script>
+</body>
+
+</html>
